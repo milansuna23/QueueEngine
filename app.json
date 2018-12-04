@@ -1,0 +1,19 @@
+{
+  "name": "hdengine",
+  "description": "HD Engine Architecture",
+  "keywords": [
+    "node",
+    "express",
+    "production",
+    "microservices"
+  ],
+  "scripts": {
+    "postdeploy": "echo 'restarting'"
+  },
+  "addons": [
+    "cloudamqp:lemur",
+    "papertrail:Choklad"
+  ],
+  "env": {
+  }
+}

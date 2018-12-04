@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Super Awesome</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+      .top-margin {
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="jumbotron">
+        <h1 class="display-4">Check customer</h1>
+        <hr class="my-4">
+        <p>This form checks if a customer has both firstname & last. The auth function is random, so invalid grant will occur.</p>
+      </div>
+      <div class="row">
+        <div class="col">
+          <form id="user-form">
+            <div class="form-group">
+              <label for="firstnameInput">First name</label>
+              <input id="lastname" type="text" class="form-control" id="firstnameInput" />
+            </div>
+            <div class="form-group">
+              <label for="lastnameInput">Last name</label>
+              <input id="firstname" type="text" class="form-control" id="lastnameInput" />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="/" class="btn btn-link">Back</a>
+          </form>
+        </div>
+      </div>
+
+      <div id="message" class="row top-margin">
+        <div class="col"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    let state = {};
+    const userForm = document.querySelector('#user-form');
+    const lastnameInput = document.querySelector('#lastname');
+    const firstnameInput = document.querySelector('#firstname');
+    const resultMessage = document.querySelector('#message .col');
+
+    function validateUser(event) {
+      event.preventDefault();
+      removeChildren(resultMessage);
+
+      fetch('/api/customer', {
+        method: 'post',
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify(state)
+      }).then(response => {
+        if (response.status != 200) {
+          throw new Error('Invalid grant');
+        }
+
+        return response.json();
+      }).then(response => {
+        const message = response.result ? 'Customer is valid' : 'Customer is not valid';
+        addMessage(resultMessage, message);
+      }).catch(error => {
+        addErrorMessage(resultMessage, error.message);
+      })
+    }
+
+    userForm.addEventListener('submit', validateUser);
+    lastnameInput.addEventListener('input', changeState('Lastname'));
+    firstnameInput.addEventListener('input', changeState('Firstname'));
+
+    function changeState(field) {
+      return event => {
+        const { value } = event.target;
+
+        state = Object.assign({}, state, { [field]: value });
+      }
+    }
+
+    function removeChildren(node) {
+      while (node.firstChild) {
+        node.firstChild.remove();
+      }
+    }
+
+    function addMessage(node, message) {
+      const messageElement = document.createElement('div');
+      messageElement.innerText = message;
+      messageElement.classList.add('alert', 'alert-primary');
+
+      node.appendChild(messageElement);
+    }
+
+    function addErrorMessage(node, message) {
+      const messageElement = document.createElement('div');
+      messageElement.innerText = message;
+      messageElement.classList.add('alert', 'alert-danger');
+
+      node.appendChild(messageElement);
+    }
+  </script>
+</html>
